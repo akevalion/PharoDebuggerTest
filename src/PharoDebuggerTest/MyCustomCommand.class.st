@@ -35,12 +35,15 @@ MyCustomCommand >> appliesTo: aDebugger [
 
 { #category : #executing }
 MyCustomCommand >> changeErrorToAssert [
-	| c sourceNodeExecuted parent |
+	| c sourceNodeExecuted parent newSource |
 	c := self debugger currentContext.
 	sourceNodeExecuted := c sourceNodeExecuted.
 	parent := sourceNodeExecuted parent parent parent.
-
-	self debugger code selectionInterval: (parent start to: parent stop)
+	parent selector: #ifFalse:.
+	
+	newSource := parent methodNode newSource.
+	self debugger code text: newSource; triggerSubmitAction.
+	"self debugger code selectionInterval: (parent start to: parent stop)"
 ]
 
 { #category : #executing }
@@ -61,7 +64,7 @@ MyCustomCommand >> isValidErrorChange [
 	(sourceNodeExecuted selector = #error:) ifFalse: [ ^ false ].
 	parent := sourceNodeExecuted parent parent parent.
 	parent isMessage ifFalse: [ ^ false ].
-	parent selector = #ifTrue: ifFalse: [ ^ false ].
+	
 	^ true
 ]
 
